@@ -1,0 +1,1752 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Recordatorios</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f3f4f6;
+            color: #1f2937;
+            min-height: 100vh;
+        }
+
+        header {
+            background: #111827;
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 28px;
+        }
+
+        #conexion {
+            font-size: 14px;
+            padding: 8px 14px;
+            border-radius: 20px;
+            background: #374151;
+        }
+
+        .contenedor {
+            width: 95%;
+            max-width: 1400px;
+            margin: 25px auto;
+        }
+
+        .barra-superior {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        button {
+            border: none;
+            border-radius: 8px;
+            padding: 11px 16px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .btn-nuevo {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-nuevo:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-probar {
+            background: #059669;
+            color: white;
+        }
+
+        .btn-probar:hover {
+            background: #047857;
+        }
+
+        .filtros {
+            background: white;
+            padding: 18px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 12px;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #d1d5db;
+            border-radius: 7px;
+            font-size: 14px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .grupo {
+            margin-bottom: 30px;
+        }
+
+        .titulo-grupo {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #d1d5db;
+        }
+
+        .tarjetas {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        .tarjeta {
+            background: white;
+            border-radius: 12px;
+            padding: 18px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border-left: 6px solid #9ca3af;
+        }
+
+        .tarjeta.alta {
+            border-left-color: #ef4444;
+        }
+
+        .tarjeta.normal {
+            border-left-color: #f59e0b;
+        }
+
+        .tarjeta.baja {
+            border-left-color: #10b981;
+        }
+
+        .tarjeta h3 {
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+
+        .nota {
+            color: #6b7280;
+            margin-bottom: 12px;
+            white-space: pre-wrap;
+        }
+
+        .datos {
+            font-size: 14px;
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        .prioridad {
+            display: inline-block;
+            padding: 4px 9px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .prioridad-alta {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .prioridad-normal {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .prioridad-baja {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .acciones {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .btn-editar {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-realizado {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-pendiente {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-eliminar {
+            background: #ef4444;
+            color: white;
+        }
+
+        .vacio {
+            background: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px;
+            color: #6b7280;
+        }
+
+        /* MODAL */
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.55);
+
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-contenido {
+            background: white;
+            width: 95%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            border-radius: 14px;
+            padding: 25px;
+        }
+
+        .modal-contenido h2 {
+            margin-bottom: 20px;
+        }
+
+        .campo {
+            margin-bottom: 15px;
+        }
+
+        .campo label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .modal-botones {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-cancelar {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-guardar {
+            background: #2563eb;
+            color: white;
+        }
+
+        /* ERROR */
+
+        #errorConexion {
+            display: none;
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 13px;
+        }
+
+        @media (max-width: 700px) {
+            .filtros {
+                grid-template-columns: 1fr;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+
+    <h1>📋 Recordatorios</h1>
+
+    <div id="conexion">
+        🟡 Conectando...
+    </div>
+
+</header>
+
+<div class="contenedor">
+
+    <div class="barra-superior">
+
+        <button class="btn-nuevo" onclick="abrirModalNuevo()">
+            ➕ Nuevo recordatorio
+        </button>
+
+        <button class="btn-probar" onclick="probarSupabase()">
+            🔌 Probar conexión
+        </button>
+
+    </div>
+
+    <div id="errorConexion"></div>
+
+    <div class="filtros">
+
+        <input
+            type="text"
+            id="buscar"
+            placeholder="🔎 Buscar recordatorio..."
+            oninput="mostrarRecordatorios()"
+        >
+
+        <select id="filtroEstado" onchange="mostrarRecordatorios()">
+
+            <option value="Todos">
+                Todos los estados
+            </option>
+
+            <option value="Pendiente">
+                Pendientes
+            </option>
+
+            <option value="Realizado">
+                Realizados
+            </option>
+
+        </select>
+
+        <select id="filtroPrioridad" onchange="mostrarRecordatorios()">
+
+            <option value="Todas">
+                Todas las prioridades
+            </option>
+
+            <option value="Alta">
+                Alta
+            </option>
+
+            <option value="Normal">
+                Normal
+            </option>
+
+            <option value="Baja">
+                Baja
+            </option>
+
+        </select>
+
+    </div>
+
+    <div id="listaRecordatorios"></div>
+
+</div>
+
+
+<!-- MODAL -->
+
+<div class="modal" id="modal">
+
+    <div class="modal-contenido">
+
+        <h2 id="tituloModal">
+            Nuevo recordatorio
+        </h2>
+
+        <div class="campo">
+
+            <label>
+                Título
+            </label>
+
+            <input
+                type="text"
+                id="titulo"
+                placeholder="Ej: Revisar stock"
+            >
+
+        </div>
+
+        <div class="campo">
+
+            <label>
+                Nota
+            </label>
+
+            <textarea
+                id="nota"
+                placeholder="Detalle del recordatorio..."
+            ></textarea>
+
+        </div>
+
+        <div class="campo">
+
+            <label>
+                Fecha
+            </label>
+
+            <input
+                type="date"
+                id="fecha"
+            >
+
+        </div>
+
+        <div class="campo">
+
+            <label>
+                Hora
+            </label>
+
+            <input
+                type="time"
+                id="hora"
+            >
+
+        </div>
+
+        <div class="campo">
+
+            <label>
+                Prioridad
+            </label>
+
+            <select id="prioridad">
+
+                <option value="Normal">
+                    Normal
+                </option>
+
+                <option value="Alta">
+                    Alta
+                </option>
+
+                <option value="Baja">
+                    Baja
+                </option>
+
+            </select>
+
+        </div>
+
+        <div class="campo">
+
+            <label>
+                Creado por
+            </label>
+
+            <input
+                type="text"
+                id="creadoPor"
+                placeholder="Nombre del operador"
+            >
+
+        </div>
+
+        <div class="modal-botones">
+
+            <button
+                class="btn-cancelar"
+                onclick="cerrarModal()"
+            >
+                Cancelar
+            </button>
+
+            <button
+                class="btn-guardar"
+                onclick="guardarRecordatorio()"
+            >
+                Guardar
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   CONFIGURACIÓN SUPABASE
+===================================================== */
+
+const SUPABASE_URL =
+    "https://zdoscwyvoazrtpofrabg.supabase.co";
+
+const SUPABASE_KEY =
+    "sb_publishable_N7bJtip-RJo3KTMUtIotKw_UIfk9R_H";
+
+
+/* =====================================================
+   VARIABLES
+===================================================== */
+
+let recordatorios = [];
+
+let editandoId = null;
+
+
+/* =====================================================
+   HEADERS
+===================================================== */
+
+function obtenerHeaders() {
+
+    return {
+
+        "apikey": SUPABASE_KEY,
+
+        "Content-Type":
+            "application/json",
+
+        "Prefer":
+            "return=representation"
+
+    };
+
+}
+
+
+/* =====================================================
+   ELEMENTOS
+===================================================== */
+
+const conexion =
+    document.getElementById("conexion");
+
+const errorConexion =
+    document.getElementById("errorConexion");
+
+
+/* =====================================================
+   CARGAR RECORDATORIOS
+===================================================== */
+
+async function cargarRecordatorios() {
+
+    try {
+
+        const respuesta = await fetch(
+
+            SUPABASE_URL +
+            "/rest/v1/recordatorios?select=*&order=fecha.asc,hora.asc",
+
+            {
+                method: "GET",
+
+                headers:
+                    obtenerHeaders()
+            }
+
+        );
+
+
+        if (!respuesta.ok) {
+
+            const textoError =
+                await respuesta.text();
+
+            console.error(
+                "ERROR SUPABASE:",
+                respuesta.status,
+                textoError
+            );
+
+            throw new Error(
+
+                "Supabase HTTP " +
+                respuesta.status +
+                "\n\n" +
+                textoError
+
+            );
+
+        }
+
+
+        recordatorios =
+            await respuesta.json();
+
+
+        conexion.innerHTML =
+            "🟢 Base de datos conectada";
+
+
+        conexion.style.background =
+            "#065f46";
+
+
+        errorConexion.style.display =
+            "none";
+
+
+        mostrarRecordatorios();
+
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+
+        conexion.innerHTML =
+            "🔴 Error de conexión";
+
+
+        conexion.style.background =
+            "#991b1b";
+
+
+        errorConexion.style.display =
+            "block";
+
+
+        errorConexion.textContent =
+            "ERROR DE CONEXIÓN\n\n" +
+            error.message;
+
+    }
+
+}
+
+
+/* =====================================================
+   PROBAR SUPABASE
+===================================================== */
+
+async function probarSupabase() {
+
+    try {
+
+        conexion.innerHTML =
+            "🟡 Probando...";
+
+
+        const url =
+            SUPABASE_URL +
+            "/rest/v1/recordatorios?select=*";
+
+
+        const respuesta =
+            await fetch(
+
+                url,
+
+                {
+                    method: "GET",
+
+                    headers: {
+
+                        "apikey":
+                            SUPABASE_KEY
+
+                    }
+
+                }
+
+            );
+
+
+        const texto =
+            await respuesta.text();
+
+
+        console.log(
+            "STATUS:",
+            respuesta.status
+        );
+
+
+        console.log(
+            "RESPUESTA:",
+            texto
+        );
+
+
+        if (respuesta.ok) {
+
+            alert(
+
+                "✅ CONEXIÓN CORRECTA\n\n" +
+
+                "STATUS: " +
+                respuesta.status +
+                "\n\n" +
+
+                "Respuesta:\n" +
+                texto
+
+            );
+
+        }
+
+        else {
+
+            alert(
+
+                "❌ ERROR SUPABASE\n\n" +
+
+                "STATUS: " +
+                respuesta.status +
+                "\n\n" +
+
+                "RESPUESTA:\n" +
+                texto
+
+            );
+
+        }
+
+
+        cargarRecordatorios();
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        alert(
+
+            "❌ ERROR\n\n" +
+            error.message
+
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   MOSTRAR RECORDATORIOS
+===================================================== */
+
+function mostrarRecordatorios() {
+
+    const contenedor =
+        document.getElementById(
+            "listaRecordatorios"
+        );
+
+
+    const buscar =
+        document.getElementById(
+            "buscar"
+        ).value
+        .toLowerCase();
+
+
+    const filtroEstado =
+        document.getElementById(
+            "filtroEstado"
+        ).value;
+
+
+    const filtroPrioridad =
+        document.getElementById(
+            "filtroPrioridad"
+        ).value;
+
+
+    let lista =
+        recordatorios.filter(
+
+            r => {
+
+                const texto =
+                    (
+                        r.titulo +
+                        " " +
+                        (r.nota || "") +
+                        " " +
+                        (r.creado_por || "")
+                    ).toLowerCase();
+
+
+                const coincideBusqueda =
+                    texto.includes(buscar);
+
+
+                const coincideEstado =
+                    filtroEstado === "Todos" ||
+                    r.estado === filtroEstado;
+
+
+                const coincidePrioridad =
+                    filtroPrioridad === "Todas" ||
+                    r.prioridad === filtroPrioridad;
+
+
+                return (
+
+                    coincideBusqueda &&
+                    coincideEstado &&
+                    coincidePrioridad
+
+                );
+
+            }
+
+        );
+
+
+    const hoy =
+        new Date();
+
+    hoy.setHours(
+        0,
+        0,
+        0,
+        0
+    );
+
+
+    const vencidos = [];
+
+    const pendientes = [];
+
+    const realizados = [];
+
+
+    lista.forEach(
+
+        r => {
+
+            if (r.estado === "Realizado") {
+
+                realizados.push(r);
+
+                return;
+
+            }
+
+
+            const fecha =
+                new Date(
+                    r.fecha +
+                    "T00:00:00"
+                );
+
+
+            if (fecha < hoy) {
+
+                vencidos.push(r);
+
+            }
+
+            else {
+
+                pendientes.push(r);
+
+            }
+
+        }
+
+    );
+
+
+    contenedor.innerHTML = "";
+
+
+    crearGrupo(
+        contenedor,
+        "🔴 Vencidos",
+        vencidos
+    );
+
+
+    crearGrupo(
+        contenedor,
+        "🟡 Pendientes",
+        pendientes
+    );
+
+
+    crearGrupo(
+        contenedor,
+        "🟢 Realizados",
+        realizados
+    );
+
+
+    if (lista.length === 0) {
+
+        contenedor.innerHTML =
+
+            '<div class="vacio">' +
+            'No hay recordatorios para mostrar.' +
+            '</div>';
+
+    }
+
+}
+
+
+/* =====================================================
+   CREAR GRUPO
+===================================================== */
+
+function crearGrupo(
+    contenedor,
+    titulo,
+    lista
+) {
+
+    if (lista.length === 0) {
+        return;
+    }
+
+
+    const grupo =
+        document.createElement("div");
+
+    grupo.className =
+        "grupo";
+
+
+    const tituloGrupo =
+        document.createElement("div");
+
+    tituloGrupo.className =
+        "titulo-grupo";
+
+
+    tituloGrupo.textContent =
+        titulo +
+        " (" +
+        lista.length +
+        ")";
+
+
+    grupo.appendChild(
+        tituloGrupo
+    );
+
+
+    const tarjetas =
+        document.createElement("div");
+
+    tarjetas.className =
+        "tarjetas";
+
+
+    lista.forEach(
+
+        r => {
+
+            tarjetas.appendChild(
+                crearTarjeta(r)
+            );
+
+        }
+
+    );
+
+
+    grupo.appendChild(
+        tarjetas
+    );
+
+
+    contenedor.appendChild(
+        grupo
+    );
+
+}
+
+
+/* =====================================================
+   CREAR TARJETA
+===================================================== */
+
+function crearTarjeta(r) {
+
+    const tarjeta =
+        document.createElement("div");
+
+
+    let clasePrioridad =
+        "normal";
+
+
+    if (r.prioridad === "Alta") {
+
+        clasePrioridad =
+            "alta";
+
+    }
+
+    else if (r.prioridad === "Baja") {
+
+        clasePrioridad =
+            "baja";
+
+    }
+
+
+    tarjeta.className =
+        "tarjeta " +
+        clasePrioridad;
+
+
+    let fechaMostrar =
+        r.fecha || "";
+
+
+    if (r.fecha) {
+
+        const partes =
+            r.fecha.split("-");
+
+        if (partes.length === 3) {
+
+            fechaMostrar =
+                partes[2] +
+                "/" +
+                partes[1] +
+                "/" +
+                partes[0];
+
+        }
+
+    }
+
+
+    const horaMostrar =
+        r.hora
+            ? r.hora.substring(0, 5)
+            : "Sin hora";
+
+
+    tarjeta.innerHTML = `
+
+        <span class="prioridad prioridad-${clasePrioridad}">
+            ${r.prioridad}
+        </span>
+
+        <h3>
+            ${escaparHTML(r.titulo)}
+        </h3>
+
+        <div class="nota">
+            ${escaparHTML(r.nota || "")}
+        </div>
+
+        <div class="datos">
+
+            📅 <strong>Fecha:</strong>
+            ${fechaMostrar}
+
+            <br>
+
+            ⏰ <strong>Hora:</strong>
+            ${horaMostrar}
+
+            <br>
+
+            👤 <strong>Creado por:</strong>
+            ${escaparHTML(r.creado_por || "-")}
+
+            <br>
+
+            📌 <strong>Estado:</strong>
+            ${r.estado}
+
+        </div>
+
+        <div class="acciones">
+
+            <button
+                class="btn-editar"
+                onclick="editarRecordatorio(${r.id})"
+            >
+                ✏️ Editar
+            </button>
+
+            ${
+                r.estado === "Realizado"
+
+                ?
+
+                `
+                <button
+                    class="btn-pendiente"
+                    onclick="cambiarEstado(${r.id}, 'Pendiente')"
+                >
+                    ↩️ Pendiente
+                </button>
+                `
+
+                :
+
+                `
+                <button
+                    class="btn-realizado"
+                    onclick="cambiarEstado(${r.id}, 'Realizado')"
+                >
+                    ✅ Realizado
+                </button>
+                `
+
+            }
+
+            <button
+                class="btn-eliminar"
+                onclick="eliminarRecordatorio(${r.id})"
+            >
+                🗑️ Eliminar
+            </button>
+
+        </div>
+
+    `;
+
+
+    return tarjeta;
+
+}
+
+
+/* =====================================================
+   ESCAPAR HTML
+===================================================== */
+
+function escaparHTML(texto) {
+
+    const div =
+        document.createElement("div");
+
+    div.textContent =
+        texto;
+
+    return div.innerHTML;
+
+}
+
+
+/* =====================================================
+   ABRIR NUEVO
+===================================================== */
+
+function abrirModalNuevo() {
+
+    editandoId =
+        null;
+
+
+    document.getElementById(
+        "tituloModal"
+    ).textContent =
+        "Nuevo recordatorio";
+
+
+    document.getElementById(
+        "titulo"
+    ).value =
+        "";
+
+
+    document.getElementById(
+        "nota"
+    ).value =
+        "";
+
+
+    document.getElementById(
+        "fecha"
+    ).value =
+        obtenerFechaHoy();
+
+
+    document.getElementById(
+        "hora"
+    ).value =
+        "";
+
+
+    document.getElementById(
+        "prioridad"
+    ).value =
+        "Normal";
+
+
+    document.getElementById(
+        "creadoPor"
+    ).value =
+        "";
+
+
+    document.getElementById(
+        "modal"
+    ).style.display =
+        "flex";
+
+}
+
+
+/* =====================================================
+   CERRAR MODAL
+===================================================== */
+
+function cerrarModal() {
+
+    document.getElementById(
+        "modal"
+    ).style.display =
+        "none";
+
+}
+
+
+/* =====================================================
+   FECHA DE HOY
+===================================================== */
+
+function obtenerFechaHoy() {
+
+    const hoy =
+        new Date();
+
+
+    const año =
+        hoy.getFullYear();
+
+
+    const mes =
+        String(
+            hoy.getMonth() + 1
+        ).padStart(
+            2,
+            "0"
+        );
+
+
+    const dia =
+        String(
+            hoy.getDate()
+        ).padStart(
+            2,
+            "0"
+        );
+
+
+    return (
+        año +
+        "-" +
+        mes +
+        "-" +
+        dia
+    );
+
+}
+
+
+/* =====================================================
+   GUARDAR
+===================================================== */
+
+async function guardarRecordatorio() {
+
+    const titulo =
+        document.getElementById(
+            "titulo"
+        ).value.trim();
+
+
+    const nota =
+        document.getElementById(
+            "nota"
+        ).value.trim();
+
+
+    const fecha =
+        document.getElementById(
+            "fecha"
+        ).value;
+
+
+    const hora =
+        document.getElementById(
+            "hora"
+        ).value;
+
+
+    const prioridad =
+        document.getElementById(
+            "prioridad"
+        ).value;
+
+
+    const creadoPor =
+        document.getElementById(
+            "creadoPor"
+        ).value.trim();
+
+
+    if (!titulo) {
+
+        alert(
+            "Ingresá un título."
+        );
+
+        return;
+
+    }
+
+
+    if (!fecha) {
+
+        alert(
+            "Ingresá una fecha."
+        );
+
+        return;
+
+    }
+
+
+    const datos = {
+
+        titulo:
+            titulo,
+
+        nota:
+            nota || null,
+
+        fecha:
+            fecha,
+
+        hora:
+            hora || null,
+
+        prioridad:
+            prioridad,
+
+        creado_por:
+            creadoPor || null
+
+    };
+
+
+    try {
+
+        let respuesta;
+
+
+        if (editandoId === null) {
+
+            respuesta =
+                await fetch(
+
+                    SUPABASE_URL +
+                    "/rest/v1/recordatorios",
+
+                    {
+
+                        method: "POST",
+
+                        headers:
+                            obtenerHeaders(),
+
+                        body:
+                            JSON.stringify(
+                                datos
+                            )
+
+                    }
+
+                );
+
+        }
+
+        else {
+
+            respuesta =
+                await fetch(
+
+                    SUPABASE_URL +
+                    "/rest/v1/recordatorios?id=eq." +
+                    editandoId,
+
+                    {
+
+                        method: "PATCH",
+
+                        headers:
+                            obtenerHeaders(),
+
+                        body:
+                            JSON.stringify(
+                                datos
+                            )
+
+                    }
+
+                );
+
+        }
+
+
+        if (!respuesta.ok) {
+
+            const textoError =
+                await respuesta.text();
+
+            throw new Error(
+
+                "Supabase HTTP " +
+                respuesta.status +
+                "\n\n" +
+                textoError
+
+            );
+
+        }
+
+
+        cerrarModal();
+
+
+        await cargarRecordatorios();
+
+
+        alert(
+            editandoId === null
+                ? "✅ Recordatorio creado."
+                : "✅ Recordatorio actualizado."
+        );
+
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        alert(
+            "❌ No se pudo guardar.\n\n" +
+            error.message
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   EDITAR
+===================================================== */
+
+function editarRecordatorio(id) {
+
+    const r =
+        recordatorios.find(
+            x => x.id === id
+        );
+
+
+    if (!r) {
+        return;
+    }
+
+
+    editandoId =
+        id;
+
+
+    document.getElementById(
+        "tituloModal"
+    ).textContent =
+        "Editar recordatorio";
+
+
+    document.getElementById(
+        "titulo"
+    ).value =
+        r.titulo || "";
+
+
+    document.getElementById(
+        "nota"
+    ).value =
+        r.nota || "";
+
+
+    document.getElementById(
+        "fecha"
+    ).value =
+        r.fecha || "";
+
+
+    document.getElementById(
+        "hora"
+    ).value =
+        r.hora
+            ? r.hora.substring(0, 5)
+            : "";
+
+
+    document.getElementById(
+        "prioridad"
+    ).value =
+        r.prioridad || "Normal";
+
+
+    document.getElementById(
+        "creadoPor"
+    ).value =
+        r.creado_por || "";
+
+
+    document.getElementById(
+        "modal"
+    ).style.display =
+        "flex";
+
+}
+
+
+/* =====================================================
+   CAMBIAR ESTADO
+===================================================== */
+
+async function cambiarEstado(
+    id,
+    estado
+) {
+
+    try {
+
+        const respuesta =
+            await fetch(
+
+                SUPABASE_URL +
+                "/rest/v1/recordatorios?id=eq." +
+                id,
+
+                {
+
+                    method: "PATCH",
+
+                    headers:
+                        obtenerHeaders(),
+
+                    body:
+                        JSON.stringify({
+
+                            estado:
+                                estado
+
+                        })
+
+                }
+
+            );
+
+
+        if (!respuesta.ok) {
+
+            const textoError =
+                await respuesta.text();
+
+            throw new Error(
+
+                "Supabase HTTP " +
+                respuesta.status +
+                "\n\n" +
+                textoError
+
+            );
+
+        }
+
+
+        await cargarRecordatorios();
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        alert(
+            "❌ Error al cambiar estado.\n\n" +
+            error.message
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   ELIMINAR
+===================================================== */
+
+async function eliminarRecordatorio(id) {
+
+    const confirmar =
+        confirm(
+            "¿Querés eliminar este recordatorio?"
+        );
+
+
+    if (!confirmar) {
+        return;
+    }
+
+
+    try {
+
+        const respuesta =
+            await fetch(
+
+                SUPABASE_URL +
+                "/rest/v1/recordatorios?id=eq." +
+                id,
+
+                {
+
+                    method: "DELETE",
+
+                    headers:
+                        obtenerHeaders()
+
+                }
+
+            );
+
+
+        if (!respuesta.ok) {
+
+            const textoError =
+                await respuesta.text();
+
+            throw new Error(
+
+                "Supabase HTTP " +
+                respuesta.status +
+                "\n\n" +
+                textoError
+
+            );
+
+        }
+
+
+        await cargarRecordatorios();
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+
+        alert(
+            "❌ Error al eliminar.\n\n" +
+            error.message
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   CERRAR MODAL AL HACER CLICK AFUERA
+===================================================== */
+
+window.onclick =
+    function(event) {
+
+        const modal =
+            document.getElementById(
+                "modal"
+            );
+
+
+        if (event.target === modal) {
+
+            cerrarModal();
+
+        }
+
+    };
+
+
+/* =====================================================
+   INICIO
+===================================================== */
+
+cargarRecordatorios();
+
+
+/* =====================================================
+   ACTUALIZACIÓN AUTOMÁTICA
+   Cada 30 segundos
+===================================================== */
+
+setInterval(
+
+    function() {
+
+        cargarRecordatorios();
+
+    },
+
+    30000
+
+);
+
+</script>
+
+</body>
+</html>
